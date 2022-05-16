@@ -21,7 +21,6 @@ class BoundingBoxDisplayView : View {
 
     private val mPaintRectangle: Paint = Paint()
     private val mPaintText: Paint
-    lateinit var labels: List<String>
     var boundingBoxes: List<BoundingBox>? = null
 
     init {
