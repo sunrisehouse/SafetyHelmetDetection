@@ -69,7 +69,7 @@ class DetectionActivity : CameraXActivity<DetectionActivity.AnalysisResult>() {
     override fun applyToUiAnalyzeImageResult(result: AnalysisResult) {
         val labels = listOf("class 1", "class 2")
         boundingBoxDisplayView.boundingBoxes = result.objects.map { o ->
-            BoundingBox(String.format("%s %.2f", labels[o.classIndex], o.score), o.rect)
+            BoundingBox(String.format("%s %.2f", "class " + o.classIndex, o.score), o.rect)
         }
         boundingBoxDisplayView.invalidate()
     }
