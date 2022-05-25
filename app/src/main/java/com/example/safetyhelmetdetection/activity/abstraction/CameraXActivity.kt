@@ -76,17 +76,13 @@ abstract class CameraXActivity<R> : AppCompatActivity() {
                 .build()
 
             imageAnalysis.setAnalyzer(executor, ImageAnalysis.Analyzer { imageProxy ->
-                Log.d("hanjungwoo", "shit")
                 if (SystemClock.elapsedRealtime() - lastAnalysisResultTime > 500) {
                     val rotationDegrees = imageProxy.imageInfo.rotationDegrees
-                    Log.d("hanjungwoo", "hhhhhhh")
                     val result = analyzeImage(imageProxy, rotationDegrees)
                     lastAnalysisResultTime = SystemClock.elapsedRealtime()
                     runOnUiThread { applyToUiAnalyzeImageResult(result) }
-                    imageProxy.close()
-                    CoroutineScope(Dispatchers.Default).launch {
-                    }
                 }
+                imageProxy.close()
             })
 
             cameraProvider.bindToLifecycle(this as LifecycleOwner, cameraSelector, imageAnalysis, preview)

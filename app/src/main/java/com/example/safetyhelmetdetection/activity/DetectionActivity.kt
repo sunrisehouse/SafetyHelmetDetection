@@ -11,6 +11,7 @@ import androidx.camera.view.PreviewView
 import com.example.safetyhelmetdetection.R
 import com.example.safetyhelmetdetection.SafetyHelmetDetectionApplication
 import com.example.safetyhelmetdetection.activity.abstraction.CameraXActivity
+import com.example.safetyhelmetdetection.analyzer.ObjectInImageAnalyzer
 import com.example.safetyhelmetdetection.model.BoundingBox
 import com.example.safetyhelmetdetection.model.DetectionObject
 import com.example.safetyhelmetdetection.processor.PrePostProcessor
@@ -30,6 +31,7 @@ import java.lang.Exception
 
 class DetectionActivity : CameraXActivity<DetectionActivity.AnalysisResult>() {
     private lateinit var boundingBoxDisplayView: BoundingBoxDisplayView
+    private val objectInImageAnalyzer = ObjectInImageAnalyzer()
     class AnalysisResult(val objects: List<DetectionObject>)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,55 +50,20 @@ class DetectionActivity : CameraXActivity<DetectionActivity.AnalysisResult>() {
 
     @SuppressLint("UnsafeOptInUsageError")
     override fun analyzeImage(imageProxy: ImageProxy, rotationDegrees: Int): AnalysisResult {
-//        SafetyHelmetDetectionApplication.INSTANCE.module
-//        if (module != null) {
-//            try {
-//                val image: Image = imageProxy.image ?: throw NullPointerException()
-//                var bitmap: Bitmap = imgToBitmap(image)
-//                val matrix = Matrix()
-//                matrix.postRotate(90.0f)
-//                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-//                val resizedBitmap = Bitmap.createScaledBitmap(
-//                    bitmap,
-//                    PrePostProcessor.mInputWidth,
-//                    PrePostProcessor.mInputHeight,
-//                    true
-//                )
-//
-//                val inputTensor = TensorImageUtils.bitmapToFloat32Tensor(
-//                    resizedBitmap,
-//                    PrePostProcessor.NO_MEAN_RGB,
-//                    PrePostProcessor.NO_STD_RGB
-//                )
-//                val outputTuple: Array<IValue> = module!!.forward(IValue.from(inputTensor)).toTuple()
-//                val outputTensor = outputTuple[0].toTensor()
-//                val outputs = outputTensor.dataAsFloatArray
-//
-//                val imgScaleX: Float = bitmap.width.toFloat() / PrePostProcessor.mInputWidth
-//                val imgScaleY: Float = bitmap.height.toFloat() / PrePostProcessor.mInputHeight
-//                val ivScaleX = boundingBoxDisplayView.getWidth() as Float / bitmap.width
-//                val ivScaleY = boundingBoxDisplayView.getHeight() as Float / bitmap.height
-//
-//                val results = PrePostProcessor.outputsToNMSPredictions(
-//                    outputs,
-//                    imgScaleX,
-//                    imgScaleY,
-//                    ivScaleX,
-//                    ivScaleY,
-//                    0.0f,
-//                    0.0f,
-//                )
-//                return AnalysisResult(results)
-//            } catch(e: Exception) {
-//                Log.d("hanjungwoo", "eee", e)
-//            }
-//        }
-//        return AnalysisResult(listOf())
-        val result = listOf(
-            DetectionObject(0, 0.9f, Rect(10, 10, 200, 200)),
-            DetectionObject(1, 0.9f, Rect(400, 400, 700, 700)),
-        )
-        return AnalysisResult(result)
+        if (SafetyHelmetDetectionApplication.INSTANCE.module != null) {
+            try {
+                val results = objectInImageAnalyzer.analyze(
+                    SafetyHelmetDetectionApplication.INSTANCE.module!!,
+                    imageProxy.image ?: throw NullPointerException(),
+                    boundingBoxDisplayView.width.toFloat(),
+                    boundingBoxDisplayView.height.toFloat(),
+                )
+                return AnalysisResult(results)
+            } catch(e: Exception) {
+                Log.d("hanjungwoo", "eee", e)
+            }
+        }
+        return AnalysisResult(listOf())
     }
 
     override fun applyToUiAnalyzeImageResult(result: AnalysisResult) {
@@ -106,24 +73,4 @@ class DetectionActivity : CameraXActivity<DetectionActivity.AnalysisResult>() {
         }
         boundingBoxDisplayView.invalidate()
     }
-
-    private fun imgToBitmap(image: Image): Bitmap {
-        val planes = image.planes
-        val yBuffer = planes[0].buffer
-        val uBuffer = planes[1].buffer
-        val vBuffer = planes[2].buffer
-        val ySize = yBuffer.remaining()
-        val uSize = uBuffer.remaining()
-        val vSize = vBuffer.remaining()
-        val nv21 = ByteArray(ySize + uSize + vSize)
-        yBuffer[nv21, 0, ySize]
-        vBuffer[nv21, ySize, vSize]
-        uBuffer[nv21, ySize + vSize, uSize]
-        val yuvImage = YuvImage(nv21, ImageFormat.NV21, image.width, image.height, null)
-        val out = ByteArrayOutputStream()
-        yuvImage.compressToJpeg(Rect(0, 0, yuvImage.width, yuvImage.height), 75, out)
-        val imageBytes = out.toByteArray()
-        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-    }
-
 }
