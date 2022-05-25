@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.Log
 import android.util.Size
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +16,9 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 abstract class CameraXActivity<R> : AppCompatActivity() {
     companion object {
@@ -72,12 +76,16 @@ abstract class CameraXActivity<R> : AppCompatActivity() {
                 .build()
 
             imageAnalysis.setAnalyzer(executor, ImageAnalysis.Analyzer { imageProxy ->
+                Log.d("hanjungwoo", "shit")
                 if (SystemClock.elapsedRealtime() - lastAnalysisResultTime > 500) {
                     val rotationDegrees = imageProxy.imageInfo.rotationDegrees
+                    Log.d("hanjungwoo", "hhhhhhh")
                     val result = analyzeImage(imageProxy, rotationDegrees)
                     lastAnalysisResultTime = SystemClock.elapsedRealtime()
                     runOnUiThread { applyToUiAnalyzeImageResult(result) }
                     imageProxy.close()
+                    CoroutineScope(Dispatchers.Default).launch {
+                    }
                 }
             })
 
