@@ -26,7 +26,6 @@ class SafetyHelmetDetectionApplication: Application() {
     private fun loadModule() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                Log.d("hanjungwoo", "start")
                 val modelFileName = "best.torchscript.ptl"
                 val context = applicationContext;
                 val file = File(context.filesDir, modelFileName)
@@ -44,7 +43,7 @@ class SafetyHelmetDetectionApplication: Application() {
                 }
                 module = LiteModuleLoader.load(file.absolutePath)
             } catch (e: Exception) {
-                Log.d("hanjungwooo", "Error reading assets", e)
+                Log.e("SHD", "Error reading assets", e)
             }
         }
     }

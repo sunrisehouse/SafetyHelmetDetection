@@ -60,7 +60,7 @@ class DetectionActivity : CameraXActivity<DetectionActivity.AnalysisResult>() {
                 )
                 return AnalysisResult(results)
             } catch(e: Exception) {
-                Log.d("hanjungwoo", "eee", e)
+                Log.e("SHD", "eee", e)
             }
         }
         return AnalysisResult(listOf())
