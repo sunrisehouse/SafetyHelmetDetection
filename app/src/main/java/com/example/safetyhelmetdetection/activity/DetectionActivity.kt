@@ -29,47 +29,52 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.lang.Exception
 
-class DetectionActivity : CameraXActivity<DetectionActivity.AnalysisResult>() {
+class DetectionActivity : CameraXActivity() {
     private lateinit var boundingBoxDisplayView: BoundingBoxDisplayView
     private val objectInImageAnalyzer = ObjectInImageAnalyzer()
+    private lateinit var cameraPreviewView: PreviewView
     class AnalysisResult(val objects: List<DetectionObject>)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detection)
         boundingBoxDisplayView = findViewById(R.id.boundingBoxDisplayView)
+        cameraPreviewView = findViewById<PreviewView>(R.id.cameraPreviewView)
     }
 
     override fun buildPreview(): Preview {
         return Preview.Builder()
             .build()
             .also {
-                it.setSurfaceProvider(findViewById<PreviewView>(R.id.cameraPreviewView).surfaceProvider)
+                it.setSurfaceProvider(cameraPreviewView.surfaceProvider)
             }
     }
 
     @SuppressLint("UnsafeOptInUsageError")
-    override fun analyzeImage(imageProxy: ImageProxy, rotationDegrees: Int): AnalysisResult {
+    override fun analyzeImage(imageProxy: ImageProxy, rotationDegrees: Int) {
         if (SafetyHelmetDetectionApplication.INSTANCE.module != null) {
             try {
-                val results = objectInImageAnalyzer.analyze(
-                    SafetyHelmetDetectionApplication.INSTANCE.module!!,
-                    imageProxy.image ?: throw NullPointerException(),
-                    boundingBoxDisplayView.width.toFloat(),
-                    boundingBoxDisplayView.height.toFloat(),
+                val bitmap = objectInImageAnalyzer.imgToBitmap(
+                    imageProxy.image ?: throw NullPointerException()
                 )
-                return AnalysisResult(results)
+                CoroutineScope(Dispatchers.IO).launch {
+                    val results = objectInImageAnalyzer.analyze(
+                        SafetyHelmetDetectionApplication.INSTANCE.module!!,
+                        bitmap,
+                        boundingBoxDisplayView.width.toFloat(),
+                        boundingBoxDisplayView.height.toFloat(),
+                    )
+                    runOnUiThread { applyToUiAnalyzeImageResult(AnalysisResult(results)) }
+                }
             } catch(e: Exception) {
-                Log.e("SHD", "eee", e)
+                Log.e("SHD", "Analyze Failed", e)
             }
         }
-        return AnalysisResult(listOf())
     }
 
-    override fun applyToUiAnalyzeImageResult(result: AnalysisResult) {
-        val labels = listOf("class 1", "class 2")
+    private fun applyToUiAnalyzeImageResult(result: AnalysisResult) {
         boundingBoxDisplayView.boundingBoxes = result.objects.map { o ->
-            BoundingBox(String.format("%s %.2f", "class " + o.classIndex, o.score), o.rect)
+            BoundingBox(String.format("%s (%.2f)", "class " + o.classIndex, o.score), o.rect)
         }
         boundingBoxDisplayView.invalidate()
     }

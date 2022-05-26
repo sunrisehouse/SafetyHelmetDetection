@@ -2,6 +2,7 @@ package com.example.safetyhelmetdetection.analyzer
 
 import android.graphics.*
 import android.media.Image
+import android.util.Log
 import androidx.camera.core.ImageProxy
 import com.example.safetyhelmetdetection.SafetyHelmetDetectionApplication
 import com.example.safetyhelmetdetection.model.DetectionObject
@@ -14,14 +15,13 @@ import java.io.ByteArrayOutputStream
 class ObjectInImageAnalyzer {
     fun analyze(
         module: Module,
-        image: Image,
+        bitmapSrc: Bitmap,
         boundingBoxDisplayViewWidth: Float,
         boundingBoxDisplayViewHeight: Float
     ): List<DetectionObject> {
-        var bitmap: Bitmap = imgToBitmap(image)
         val matrix = Matrix()
         matrix.postRotate(90.0f)
-        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+        val bitmap = Bitmap.createBitmap(bitmapSrc, 0, 0, bitmapSrc.width, bitmapSrc.height, matrix, true)
         val resizedBitmap = Bitmap.createScaledBitmap(
             bitmap,
             PrePostProcessor.mInputWidth,
@@ -55,7 +55,7 @@ class ObjectInImageAnalyzer {
             0.0f,
         )
     }
-    private fun imgToBitmap(image: Image): Bitmap {
+    fun imgToBitmap(image: Image): Bitmap {
         val planes = image.planes
         val yBuffer = planes[0].buffer
         val uBuffer = planes[1].buffer

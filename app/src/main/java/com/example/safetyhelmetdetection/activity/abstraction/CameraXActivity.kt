@@ -20,7 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class CameraXActivity<R> : AppCompatActivity() {
+abstract class CameraXActivity : AppCompatActivity() {
     companion object {
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
@@ -71,16 +71,15 @@ abstract class CameraXActivity<R> : AppCompatActivity() {
                 .build()
 
             val imageAnalysis = ImageAnalysis.Builder()
-                .setTargetResolution(Size(1280, 720))
+                .setTargetResolution(Size(480, 640))
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
 
             imageAnalysis.setAnalyzer(executor, ImageAnalysis.Analyzer { imageProxy ->
                 if (SystemClock.elapsedRealtime() - lastAnalysisResultTime > 500) {
                     val rotationDegrees = imageProxy.imageInfo.rotationDegrees
-                    val result = analyzeImage(imageProxy, rotationDegrees)
+                    analyzeImage(imageProxy, rotationDegrees)
                     lastAnalysisResultTime = SystemClock.elapsedRealtime()
-                    runOnUiThread { applyToUiAnalyzeImageResult(result) }
                 }
                 imageProxy.close()
             })
@@ -90,6 +89,5 @@ abstract class CameraXActivity<R> : AppCompatActivity() {
     }
 
     protected abstract fun buildPreview(): Preview
-    abstract fun analyzeImage(imageProxy: ImageProxy, rotationDegrees: Int): R
-    abstract fun applyToUiAnalyzeImageResult(result: R)
+    abstract fun analyzeImage(imageProxy: ImageProxy, rotationDegrees: Int)
 }
