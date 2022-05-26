@@ -27,7 +27,7 @@ class SafetyHelmetDetectionApplication: Application() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 Log.d("hanjungwoo", "start")
-                val modelFileName = "yolov5s.torchscript.ptl"
+                val modelFileName = "best.torchscript.ptl"
                 val context = applicationContext;
                 val file = File(context.filesDir, modelFileName)
                 if (!(file.exists() && file.length() > 0)) {
