@@ -28,6 +28,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.lang.Exception
+import android.graphics.*
 
 class DetectionActivity : CameraXActivity() {
     private lateinit var boundingBoxDisplayView: BoundingBoxDisplayView
@@ -74,7 +75,7 @@ class DetectionActivity : CameraXActivity() {
 
     private fun applyToUiAnalyzeImageResult(result: AnalysisResult) {
         boundingBoxDisplayView.boundingBoxes = result.objects.map { o ->
-            BoundingBox(String.format("%s (%.2f)", "class " + o.classIndex, o.score), o.rect)
+            BoundingBox(String.format("%s (%.2f)", if (o.classIndex == 1) "Helmet" else "Head", o.score), o.rect, if (o.classIndex == 1) Color.RED else Color.YELLOW)
         }
         boundingBoxDisplayView.invalidate()
     }

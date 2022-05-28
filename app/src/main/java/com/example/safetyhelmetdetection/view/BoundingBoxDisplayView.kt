@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import com.example.safetyhelmetdetection.model.BoundingBox
 import com.example.safetyhelmetdetection.model.DetectionObject
@@ -24,7 +25,6 @@ class BoundingBoxDisplayView : View {
     var boundingBoxes: List<BoundingBox>? = null
 
     init {
-        mPaintRectangle.color = Color.YELLOW
         mPaintRectangle.strokeWidth = 5f
         mPaintRectangle.style = Paint.Style.STROKE
         mPaintText = Paint()
@@ -38,7 +38,8 @@ class BoundingBoxDisplayView : View {
         super.onDraw(canvas)
 
         if (boundingBoxes == null) return
-        for ((label, rect) in boundingBoxes!!) {
+        for ((label, rect, color) in boundingBoxes!!) {
+            mPaintRectangle.color = color
             canvas.drawRect(rect, mPaintRectangle)
             val mPath = Path()
             val mRectF = RectF(

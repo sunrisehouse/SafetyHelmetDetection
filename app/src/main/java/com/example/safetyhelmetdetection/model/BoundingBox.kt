@@ -5,4 +5,5 @@ import android.graphics.Rect
 data class BoundingBox(
     val label: String,
     val rect: Rect,
+    val color: Int,
 )
