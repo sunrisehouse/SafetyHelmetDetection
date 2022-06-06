@@ -71,7 +71,7 @@ abstract class CameraXActivity : AppCompatActivity() {
                 .build()
 
             val imageAnalysis = ImageAnalysis.Builder()
-                .setTargetResolution(Size(480, 640))
+                .setTargetResolution(Size(1280, 720))
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
 

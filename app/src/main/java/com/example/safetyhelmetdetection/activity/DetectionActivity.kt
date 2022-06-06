@@ -29,18 +29,29 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.lang.Exception
 import android.graphics.*
+import android.media.Ringtone
+import android.media.RingtoneManager
+import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 
 class DetectionActivity : CameraXActivity() {
     private lateinit var boundingBoxDisplayView: BoundingBoxDisplayView
     private val objectInImageAnalyzer = ObjectInImageAnalyzer()
     private lateinit var cameraPreviewView: PreviewView
     class AnalysisResult(val objects: List<DetectionObject>)
+    private lateinit var cautionRingtone: Ringtone
+    private val HELMET_CLASS_ID = 1
 
+    @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detection)
         boundingBoxDisplayView = findViewById(R.id.boundingBoxDisplayView)
         cameraPreviewView = findViewById<PreviewView>(R.id.cameraPreviewView)
+
+        val uriNotification = Uri.parse("android.resource://com.example.safetyhelmetdetection/"+R.raw.wear_a_safety_helmet)
+        cautionRingtone = RingtoneManager.getRingtone(applicationContext, uriNotification)
     }
 
     override fun buildPreview(): Preview {
@@ -66,6 +77,14 @@ class DetectionActivity : CameraXActivity() {
                         boundingBoxDisplayView.height.toFloat(),
                     )
                     runOnUiThread { applyToUiAnalyzeImageResult(AnalysisResult(results)) }
+                    val headIndex = results.indexOfFirst { c -> c.classIndex != HELMET_CLASS_ID }
+                    Log.d("hanjungwoo", "sssss: " + headIndex)
+                    if (headIndex != -1 && !cautionRingtone.isPlaying) {
+                        cautionRingtone.play()
+                    }
+                    else if (headIndex == -1 && cautionRingtone.isPlaying){
+                        cautionRingtone.stop()
+                    }
                 }
             } catch(e: Exception) {
                 Log.e("SHD", "Analyze Failed", e)
@@ -75,7 +94,7 @@ class DetectionActivity : CameraXActivity() {
 
     private fun applyToUiAnalyzeImageResult(result: AnalysisResult) {
         boundingBoxDisplayView.boundingBoxes = result.objects.map { o ->
-            BoundingBox(String.format("%s (%.2f)", if (o.classIndex == 1) "Helmet" else "Head", o.score), o.rect, if (o.classIndex == 1) Color.RED else Color.YELLOW)
+            BoundingBox(String.format("%s (%.2f)", if (o.classIndex == HELMET_CLASS_ID) "Helmet" else "Head", o.score), o.rect, if (o.classIndex == 1) Color.RED else Color.YELLOW)
         }
         boundingBoxDisplayView.invalidate()
     }
