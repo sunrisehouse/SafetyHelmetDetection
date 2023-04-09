@@ -1,5 +1,7 @@
 # SafetyHelmetDetection
 
+![demo](./images/demo.gif)
+
 ## 1. Platform
 
 Android Platform 을 사용했다. 원래는 CCTV 에 적용할 생각으로 Desktop OS 를 생각하고 있었지만 접근성 때문에 Android 를 사용했다. 스마트폰은 Desktop 과 달리 Camera 를 가지고있다. 그럼으로 추가적으로 Camera 를 준비해야할 필요가 없다. 그리고 Android 스마트폰은 대한민국에서 가장 높은 점유율을 보이는 스마트폰 OS 이다. 이 시스템에 대한 접근성을 높일 수 있다. 또한 보급형 스마트폰은 IOS 를 사용하는 아이폰에 비해 가격이 저렴하다. 산업 현장은 많은 위험 요소가 존재하기에 비싼 스마트폰을 이 시스템 용도로 구매 하는 것은 비효율 적이다.
